@@ -40,13 +40,15 @@ def psi_endpoint(req: func.HttpRequest) -> func.HttpResponse:
             )
         
         # Get location parameter
-        location = req.params.get('location', 'national')
+        location = req.params.get('location')
         if not location:
             try:
                 req_body = req.get_json()
                 location = req_body.get('location', 'national')
             except ValueError:
-                pass
+                location = 'national'
+        if not location:
+            location = 'national'
         
         # Simulate PSI data
         response_data = {

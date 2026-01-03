@@ -5,6 +5,7 @@ allowing for easier development and testing of the agent endpoints.
 """
 
 from flask import Flask, request, jsonify
+from datetime import datetime
 import logging
 import sys
 import os
@@ -21,6 +22,22 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
+
+
+def get_request_param(param_name, default=None):
+    """Helper function to extract parameter from request.
+    
+    Args:
+        param_name: Name of the parameter to extract
+        default: Default value if parameter not found
+        
+    Returns:
+        Parameter value or default
+    """
+    value = request.args.get(param_name)
+    if value is None and request.is_json:
+        value = request.json.get(param_name)
+    return value if value is not None else default
 
 
 @app.route('/')
@@ -46,12 +63,12 @@ def hawker_agent():
     
     try:
         # Verify trust if requester info is provided
-        requester = request.args.get('requester') or request.json.get('requester') if request.is_json else None
+        requester = get_request_param('requester')
         if requester and not verify_agent_trust(requester):
             return jsonify({"error": "Requester not trusted"}), 403
         
         # Get query parameter
-        query = request.args.get('query') or (request.json.get('query') if request.is_json else None)
+        query = get_request_param('query')
         
         if query:
             # Simulate hawker center data
@@ -94,15 +111,13 @@ def psi_agent():
     logging.info('PSI Agent: Processing request.')
     
     try:
-        from datetime import datetime
-        
         # Verify trust if requester info is provided
-        requester = request.args.get('requester') or (request.json.get('requester') if request.is_json else None)
+        requester = get_request_param('requester')
         if requester and not verify_agent_trust(requester):
             return jsonify({"error": "Requester not trusted"}), 403
         
         # Get location parameter
-        location = request.args.get('location', 'national') or (request.json.get('location', 'national') if request.is_json else 'national')
+        location = get_request_param('location', 'national')
         
         # Simulate PSI data
         response_data = {
@@ -134,12 +149,12 @@ def merlion_agent():
     
     try:
         # Verify trust if requester info is provided
-        requester = request.args.get('requester') or (request.json.get('requester') if request.is_json else None)
+        requester = get_request_param('requester')
         if requester and not verify_agent_trust(requester):
             return jsonify({"error": "Requester not trusted"}), 403
         
         # Get category parameter
-        category = request.args.get('category', 'all') or (request.json.get('category', 'all') if request.is_json else 'all')
+        category = get_request_param('category', 'all')
         
         # Simulate tourist attraction data
         attractions = {
