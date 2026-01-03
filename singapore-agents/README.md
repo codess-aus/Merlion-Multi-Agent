@@ -74,6 +74,20 @@ python app.py
 
 The server will start on `http://localhost:5000`
 
+### Environment Variables
+
+For local development, you can configure the Flask app using environment variables:
+
+- **FLASK_DEBUG**: Set to `true` to enable debug mode (default: `false` for security)
+- **FLASK_PORT**: Port number for the Flask server (default: `5000`)
+
+Example:
+```bash
+FLASK_DEBUG=true FLASK_PORT=8000 python app.py
+```
+
+**Security Note**: Never enable debug mode in production environments as it may allow attackers to execute arbitrary code.
+
 ### Testing Endpoints
 
 **Root endpoint** - List all agents:

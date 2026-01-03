@@ -216,8 +216,10 @@ def merlion_agent():
 
 if __name__ == '__main__':
     # Run the Flask development server
+    # Debug mode should only be enabled in development environments
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
     app.run(
         host='0.0.0.0',
-        port=5000,
-        debug=True
+        port=int(os.environ.get('FLASK_PORT', 5000)),
+        debug=debug_mode
     )
