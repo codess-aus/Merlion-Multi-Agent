@@ -6,13 +6,15 @@ This agent provides information about hawker centers in Singapore.
 import azure.functions as func
 import logging
 import json
-import sys
-import os
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from shared.trust_module import verify_agent_trust, get_agent_info
+try:
+    from shared.trust_module import verify_agent_trust, get_agent_info
+except ImportError:
+    # Fallback for Azure Functions deployment structure
+    import sys
+    import os
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from shared.trust_module import verify_agent_trust, get_agent_info
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 

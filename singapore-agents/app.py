@@ -7,13 +7,15 @@ allowing for easier development and testing of the agent endpoints.
 from flask import Flask, request, jsonify
 from datetime import datetime
 import logging
-import sys
 import os
 
-# Add current directory to path for imports
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from shared.trust_module import verify_agent_trust, get_agent_info, get_all_agents
+try:
+    from shared.trust_module import verify_agent_trust, get_agent_info, get_all_agents
+except ImportError:
+    # Fallback for different execution contexts
+    import sys
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    from shared.trust_module import verify_agent_trust, get_agent_info, get_all_agents
 
 # Configure logging
 logging.basicConfig(
