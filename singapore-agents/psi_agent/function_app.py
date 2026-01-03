@@ -44,9 +44,9 @@ def psi_endpoint(req: func.HttpRequest) -> func.HttpResponse:
         if not location:
             try:
                 req_body = req.get_json()
-                location = req_body.get('location', 'national')
+                location = req_body.get('location')
             except ValueError:
-                location = 'national'
+                pass
         if not location:
             location = 'national'
         

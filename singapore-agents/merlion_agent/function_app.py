@@ -39,13 +39,15 @@ def merlion_endpoint(req: func.HttpRequest) -> func.HttpResponse:
             )
         
         # Get category parameter
-        category = req.params.get('category', 'all')
+        category = req.params.get('category')
         if not category:
             try:
                 req_body = req.get_json()
-                category = req_body.get('category', 'all')
+                category = req_body.get('category')
             except ValueError:
                 pass
+        if not category:
+            category = 'all'
         
         # Simulate tourist attraction data
         attractions = {
