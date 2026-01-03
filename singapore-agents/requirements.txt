@@ -1,0 +1,15 @@
+# Azure Functions dependencies
+azure-functions>=1.18.0
+
+# Flask for local development
+Flask>=3.0.0
+
+# Additional utilities
+python-dateutil>=2.8.2
+
+# Logging and configuration
+python-dotenv>=1.0.0
+
+# Testing (optional but recommended)
+pytest>=7.4.0
+pytest-cov>=4.1.0
