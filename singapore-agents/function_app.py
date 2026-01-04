@@ -38,13 +38,408 @@ def root_endpoint(req: func.HttpRequest) -> func.HttpResponse:
             "psi": "/api/psi?location=<north|south|east|west|central|national>",
             "merlion": "/api/merlion?category=<landmarks|nature|culture|all>"
         },
-        "documentation": "https://github.com/codess-aus/Merlion-Multi-Agent"
+        "documentation": "https://github.com/codess-aus/Merlion-Multi-Agent",
+        "demo": "/api/demo"
     }
     
     return func.HttpResponse(
         json.dumps(response),
         status_code=200,
         mimetype="application/json"
+    )
+
+# Demo page endpoint
+@app.route(route="demo")
+def demo_endpoint(req: func.HttpRequest) -> func.HttpResponse:
+    """Serve the demo HTML page."""
+    html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singapore Multi-Agent System - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .agent-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .agent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .agent-icon {
+            font-size: 3em;
+            margin-right: 15px;
+        }
+        
+        .agent-title {
+            flex: 1;
+        }
+        
+        .agent-title h2 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .agent-title p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .response {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+        
+        .response.show {
+            display: block;
+        }
+        
+        .response-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .response-content {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background: #fde8e8;
+            border-left-color: #e74c3c;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🦁 Singapore Multi-Agent System</h1>
+            <p class="subtitle">Explore Singapore through intelligent agents</p>
+        </header>
+        
+        <div class="agents-grid">
+            <!-- Hawker Agent -->
+            <div class="agent-card">
+                <div class="agent-header">
+                    <div class="agent-icon">🍜</div>
+                    <div class="agent-title">
+                        <h2>Hawker Agent</h2>
+                        <p>Find hawker centers & food</p>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="hawker-query">Search for:</label>
+                    <input type="text" id="hawker-query" placeholder="e.g., chicken rice, noodles" value="chicken rice">
+                </div>
+                
+                <button onclick="testHawker()">Search Hawker Centers</button>
+                
+                <div id="hawker-response" class="response"></div>
+            </div>
+            
+            <!-- PSI Agent -->
+            <div class="agent-card">
+                <div class="agent-header">
+                    <div class="agent-icon">💨</div>
+                    <div class="agent-title">
+                        <h2>PSI Agent</h2>
+                        <p>Check air quality</p>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="psi-location">Location:</label>
+                    <select id="psi-location">
+                        <option value="national">National</option>
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                        <option value="central" selected>Central</option>
+                    </select>
+                </div>
+                
+                <button onclick="testPSI()">Get Air Quality</button>
+                
+                <div id="psi-response" class="response"></div>
+            </div>
+            
+            <!-- Merlion Agent -->
+            <div class="agent-card">
+                <div class="agent-header">
+                    <div class="agent-icon">🏛️</div>
+                    <div class="agent-title">
+                        <h2>Merlion Agent</h2>
+                        <p>Discover attractions</p>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="merlion-category">Category:</label>
+                    <select id="merlion-category">
+                        <option value="all">All Attractions</option>
+                        <option value="landmarks" selected>Landmarks</option>
+                        <option value="nature">Nature</option>
+                        <option value="culture">Culture</option>
+                    </select>
+                </div>
+                
+                <button onclick="testMerlion()">Find Attractions</button>
+                
+                <div id="merlion-response" class="response"></div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Powered by Azure Functions | <a href="https://github.com/codess-aus/Merlion-Multi-Agent" target="_blank">View on GitHub</a></p>
+        </footer>
+    </div>
+    
+    <script>
+        // Use relative URLs since we're on the same domain
+        const API_BASE_URL = '/api';
+        
+        async function callAPI(endpoint, params) {
+            const url = new URL(`${API_BASE_URL}/${endpoint}`, window.location.origin);
+            Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return await response.json();
+        }
+        
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.className = 'response show';
+            element.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+        }
+        
+        function showResponse(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.className = 'response show';
+            element.innerHTML = `
+                <div class="response-title">✓ Response:</div>
+                <div class="response-content">${JSON.stringify(data, null, 2)}</div>
+            `;
+        }
+        
+        function showError(elementId, error) {
+            const element = document.getElementById(elementId);
+            element.className = 'response show error';
+            element.innerHTML = `
+                <div class="response-title">✗ Error:</div>
+                <div class="response-content">${error.message || error}</div>
+            `;
+        }
+        
+        async function testHawker() {
+            const query = document.getElementById('hawker-query').value;
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            showLoading('hawker-response');
+            try {
+                const data = await callAPI('hawker', { query });
+                showResponse('hawker-response', data);
+            } catch (error) {
+                showError('hawker-response', error);
+            }
+        }
+        
+        async function testPSI() {
+            const location = document.getElementById('psi-location').value;
+            
+            showLoading('psi-response');
+            try {
+                const data = await callAPI('psi', { location });
+                showResponse('psi-response', data);
+            } catch (error) {
+                showError('psi-response', error);
+            }
+        }
+        
+        async function testMerlion() {
+            const category = document.getElementById('merlion-category').value;
+            
+            showLoading('merlion-response');
+            try {
+                const data = await callAPI('merlion', { category });
+                showResponse('merlion-response', data);
+            } catch (error) {
+                showError('merlion-response', error);
+            }
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('hawker-query').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') testHawker();
+        });
+    </script>
+</body>
+</html>"""
+    
+    return func.HttpResponse(
+        html_content,
+        status_code=200,
+        mimetype="text/html"
     )
 
 # Hawker Agent endpoint
