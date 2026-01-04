@@ -74,7 +74,8 @@ az storage account create \
     --name $STORAGE_ACCOUNT \
     --location $LOCATION \
     --resource-group $RESOURCE_GROUP \
-    --sku Standard_LRS
+    --sku Standard_LRS \
+    --allow-shared-key-access true
 echo -e "${GREEN}✓ Storage account created${NC}"
 
 # Step 3: Create Function App
@@ -87,7 +88,8 @@ az functionapp create \
     --storage-account $STORAGE_ACCOUNT \
     --runtime python \
     --runtime-version 3.11 \
-    --functions-version 4
+    --functions-version 4 \
+    --os-type Linux
 echo -e "${GREEN}✓ Function app created${NC}"
 
 # Step 4: Enable Application Insights
